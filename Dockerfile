@@ -4,7 +4,7 @@ COPY . /app
 
 WORKDIR /app
 
-RUN chgrp -R /app
+RUN chgrp -R 0 /app
 
 RUN apk upgrade --update \
     && apk add bash git ca-certificates \
