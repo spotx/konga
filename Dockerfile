@@ -4,6 +4,8 @@ COPY . /app
 
 WORKDIR /app
 
+RUN chgrp -R /app
+
 RUN apk upgrade --update \
     && apk add bash git ca-certificates \
     && npm install -g bower \
@@ -15,7 +17,5 @@ RUN apk upgrade --update \
         /app/test
 
 EXPOSE 1337
-
-VOLUME /app/kongadata
 
 ENTRYPOINT ["/app/start.sh"]
