@@ -4,8 +4,6 @@ COPY . /app
 
 WORKDIR /app
 
-RUN chgrp -R 0 /app
-
 RUN apk upgrade --update \
     && apk add bash git ca-certificates \
     && npm install -g bower \
@@ -17,5 +15,7 @@ RUN apk upgrade --update \
         /app/test
 
 EXPOSE 1337
+
+RUN chgrp -R 0 /app && chmod -R g+wrx /app
 
 ENTRYPOINT ["/app/start.sh"]
