@@ -197,15 +197,10 @@ var AuthController = {
                     }, 1);
                     response.json(401, error);
                 } else { // Upon successful login, send back user data and JWT token
-                    try {
-                        userCounter.increment({
-                            success: true,
-                            user: user.email,
-                            isAdmin: user.admin
-                        }, 1);
-                    } catch (err) {
-                        sails.log(err);
-                    }
+                    userCounter.increment({
+                        success: true,
+                        user: user.email
+                    }, 1);
 
                     response.json(200, {
                         user: user,
