@@ -1,5 +1,6 @@
 'use strict';
 
+var metrics = require("./metrics");
 /**
  * HTTP Server Settings
  * (sails.config.http)
@@ -11,7 +12,7 @@
  * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.http.html
  */
 
-module.exports.http = {
+var http = {
   /****************************************************************************
    *                                                                           *
    * Express middleware to use for every Sails request. To add custom          *
@@ -67,3 +68,27 @@ module.exports.http = {
    ***************************************************************************/
   cache: 31557600000
 };
+
+if (metrics.enabled) {
+
+  http.middleware.prometheus = function () {
+    var Prometheus = require("../api/services/PrometheusMetrics");
+    var counter = Prometheus.newCounter({
+      name: "request-counter",
+      namespace: metrics.namespace,
+      subsystem: metrics.subsystem,
+      help: "The number of each request that has been made."
+    });
+    
+    return function (req, _, next) {
+      if (req.path !== "/metrics" && req.path !== "/favicon.ico") {
+        counter.increment({path: req.path}, 1);
+      }
+      next();
+    }
+  }();
+  http.middleware.order.unshift('prometheus');
+
+}
+
+module.exports.http = http;
