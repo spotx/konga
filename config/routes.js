@@ -1,4 +1,5 @@
 'use strict';
+var metrics = require("./metrics");
 
 /**
  * Route Mappings
@@ -22,7 +23,7 @@
  * http://sailsjs.org/#/documentation/concepts/Routes/RouteTargetSyntax.html
  */
 
-module.exports.routes = {
+var routes = {
     // See https://github.com/balderdashy/sails/issues/2062
     'OPTIONS /*': function (req, res) {
         res.send(200);
@@ -113,3 +114,8 @@ module.exports.routes = {
 
 
 };
+if (metrics.enabled) {
+    routes["GET /metrics"] = 'PrometheusTelemetryController.metrics';
+}
+
+module.exports.routes = routes;

@@ -3,7 +3,24 @@
 var async = require('async');
 var _ = require('lodash');
 var uuid = require('node-uuid');
-var UserSignUp = require("../events/user-events")
+var UserSignUp = require("../events/user-events");
+var metrics = require("../../config/metrics");
+
+var userCounter = function () {
+    if (metrics.enabled) {
+        var Prometheus = require("../services/PrometheusMetrics");
+        return Prometheus.newCounter({
+            name: "user-login",
+            namespace: metrics.namespace,
+            subsystem: metrics.subsystem,
+            help: "The number of login attempts"
+        });
+    } else {
+        return {
+            increment: function () { }
+        }
+    }
+}()
 
 /**
  * Authentication Controller
@@ -174,10 +191,21 @@ var AuthController = {
                 if (error) {
                     sails.log.verbose('User authentication failed');
                     sails.log.verbose(error);
-
+                    userCounter.increment({
+                        success: false,
+                        user: request.body.identifier
+                    }, 1);
                     response.json(401, error);
                 } else { // Upon successful login, send back user data and JWT token
-
+                    try {
+                        userCounter.increment({
+                            success: true,
+                            user: user.email,
+                            isAdmin: user.admin
+                        }, 1);
+                    } catch (err) {
+                        sails.log(err);
+                    }
 
                     response.json(200, {
                         user: user,

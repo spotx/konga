@@ -1,5 +1,7 @@
 'use strict';
 
+var metrics = require("./metrics");
+
 /**
  * Policy Mappings
  * (sails.config.policies)
@@ -17,7 +19,9 @@
  * For more information on configuring policies, check out:
  * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.policies.html
  */
-module.exports.policies = {
+
+ 
+var policies = {
     // Default policy for all controllers and actions
     '*': ['authenticated'],
 
@@ -25,7 +29,6 @@ module.exports.policies = {
         'checkPassword': ['authenticated'],
         'signup': ['signup', 'createUser'],
         '*': ['passport'],
-
     },
 
     KongInfoController: {
@@ -141,6 +144,12 @@ module.exports.policies = {
     KongProxyController: {
         "*": ['authenticated', 'dynamicNode']
     }
-
-
 };
+
+if (metrics.enabled) {
+    policies.PrometheusTelemetryController = {
+        "*": true
+    };
+}
+
+module.exports.policies = policies;
