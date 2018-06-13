@@ -74,7 +74,7 @@ if (metrics.enabled) {
   http.middleware.prometheus = function () {
     var Prometheus = require("../api/services/PrometheusMetrics");
     var counter = Prometheus.newCounter({
-      name: "request-counter",
+      name: "request_counter",
       namespace: metrics.namespace,
       subsystem: metrics.subsystem,
       help: "The number of each request that has been made."
