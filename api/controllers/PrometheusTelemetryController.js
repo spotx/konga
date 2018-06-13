@@ -4,7 +4,7 @@ var metrics = require("../../config/metrics");
 
 var Prometheus = require("../services/PrometheusMetrics");
 var memory = Prometheus.newGauge({
-    name: "node-memory-usage",
+    name: "node_memory_usage",
     namespace: metrics.namespace,
     subsystem: metrics.subsystem,
     help: "The number of login attempts"

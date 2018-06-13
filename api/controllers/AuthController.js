@@ -10,7 +10,7 @@ var userCounter = function () {
     if (metrics.enabled) {
         var Prometheus = require("../services/PrometheusMetrics");
         return Prometheus.newCounter({
-            name: "user-login",
+            name: "user_login",
             namespace: metrics.namespace,
             subsystem: metrics.subsystem,
             help: "The number of login attempts"
