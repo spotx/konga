@@ -131,7 +131,7 @@ module.exports = _.merge(_.cloneDeep(require('../base/Controller')), {
                             }
 
 
-                            KongService.createFromEndpointCb("/" + ( path || key ),item,req,function(err,created){
+                            KongService.updateOrCreateFromEndpointCb("/" + (path || key), item, req, function (err, created) {
 
                                 if(!responseData[key]) {
                                     responseData[key] = {

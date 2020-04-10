@@ -65,6 +65,15 @@ var KongService = {
             });
     },
 
+    updateOrCreateFromEndpointCb: function (endpoint, data, req, cb) {
+        unirest.put(req.connection.kong_admin_url + endpoint)
+            .header('Content-Type', 'application/json')
+            .send(data)
+            .end(function (response) {
+                if (response.error) return cb(response);
+                return cb(null, response.body)
+            });
+    },
 
     retrieve: function (req, res) {
         unirest.get(req.connection.kong_admin_url + req.url.replace('/kong',''))
