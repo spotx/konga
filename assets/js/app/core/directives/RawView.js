@@ -37,7 +37,7 @@
                 '</div>',
                 controller: function($scope,$uibModalInstance,_item){
                   $scope.item = _item
-                  $scope.data = 'data:text/plain;charset=utf-8,' +
+                  $scope.data = 'data:application/json;charset=utf-8,' +
                     JSON.stringify({
                       "name": "export_" + _item.name,
                       "data": {
