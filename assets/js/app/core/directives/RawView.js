@@ -16,15 +16,18 @@
           '$scope','$uibModal',
           function controller($scope,$uibModal) {
 
-            $scope.openRawView = function(item) {
+            $scope.openRawView = function (item) {
               $uibModal.open({
                 animation: true,
                 ariaLabelledBy: 'modal-title',
                 ariaDescribedBy: 'modal-body',
                 template: '<div class="modal-header primary">' +
                 ' <h5 class="modal-title" id="modal-title">' +
-                'Raw View' +
-                '<a  class="modal-close pull-right" ng-click="close()">' +
+                'Raw View ' +
+                '<a download="{{filename}}" href="{{data}}">' +
+                '<i class="mdi mdi-export"></i>' +
+                '</a>' +
+                '<a class="modal-close pull-right" ng-click="close()">' +  
                 '<i class="mdi mdi-close"></i>' +
                 '</a>' +
                 '</h5>' +
@@ -34,6 +37,14 @@
                 '</div>',
                 controller: function($scope,$uibModalInstance,_item){
                   $scope.item = _item
+                  $scope.data = 'data:application/json;charset=utf-8,' +
+                    JSON.stringify({
+                      "name": "export_" + _item.name,
+                      "data": {
+                        "apis": [_item]
+                      }
+                    });
+                  $scope.filename = item.name + ".json";
                   $scope.close = function(){
                     $uibModalInstance.dismiss()
                   }
