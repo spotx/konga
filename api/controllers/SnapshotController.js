@@ -130,42 +130,47 @@ module.exports = _.merge(_.cloneDeep(require('../base/Controller')), {
 
                             }
 
+                            
+                            function serviceResponseHandler(err, created) {
 
-                            KongService.updateOrCreateFromEndpointCb("/" + (path || key), item, req, function (err, created) {
-
-                                if(!responseData[key]) {
+                                if (!responseData[key]) {
                                     responseData[key] = {
-                                        imported : 0,
-                                        failed : {
-                                            count : 0,
-                                            items : []
+                                        imported: 0,
+                                        failed: {
+                                            count: 0,
+                                            items: []
                                         }
                                     };
                                 }
 
-                                if(err) {
+                                if (err) {
 
-                                    sails.log.error("Restore snapshot","Failed to create",key,item.name,err.raw_body);
+                                    sails.log.error("Restore snapshot", "Failed to create", key, item.name, err.raw_body);
+
+                                    if (err.statusCode == 409 && err.body && err.body.name && err.body.name.match("already exists with value")) {
+                                        sails.log.info("Retrying with a PATCH")
+                                        return KongService.updateFromEndpointCb("/" + (path || key) + "/" + item.name, item, req, serviceResponseHandler);
+                                    }
 
                                     responseData[key].failed.count++;
-                                    if(responseData[key].failed.items.indexOf(item.name) < 0) {
+                                    if (responseData[key].failed.items.indexOf(item.name) < 0) {
                                         responseData[key].failed.items.push(item.name)
                                     }
                                     return cb();
                                 }
 
 
-                                if(key === 'consumers') {
+                                if (key === 'consumers') {
                                     var consumerFns = []
                                     // Import acls
-                                    consumerAcls.forEach(function(acl){
-                                        consumerFns.push(function(cb){
-                                            KongService.createFromEndpointCb("/" + key + "/" + item.id + "/acls",acl,req,function(err,created){
+                                    consumerAcls.forEach(function (acl) {
+                                        consumerFns.push(function (cb) {
+                                            KongService.createFromEndpointCb("/" + key + "/" + item.id + "/acls", acl, req, function (err, created) {
 
-                                                if(err) {
-                                                    sails.log.error("Restore snapshot","Failed to create",key,item.name,err.raw_body);
+                                                if (err) {
+                                                    sails.log.error("Restore snapshot", "Failed to create", key, item.name, err.raw_body);
                                                     responseData[key].failed.count++
-                                                    if(responseData[key].failed.items.indexOf(item.name) < 0) {
+                                                    if (responseData[key].failed.items.indexOf(item.name) < 0) {
                                                         responseData[key].failed.items.push(item.name)
                                                     }
                                                     return cb()
@@ -178,17 +183,18 @@ module.exports = _.merge(_.cloneDeep(require('../base/Controller')), {
 
 
                                     // Import credentials
-                                    Object.keys(consumerCredentials).forEach(function(credentialKey){
+                                    Object.keys(consumerCredentials).forEach(function (credentialKey) {
 
-                                        credentialKey,consumerCredentials[credentialKey].forEach(function(credentialData){
+                                        credentialKey,
+                                        consumerCredentials[credentialKey].forEach(function (credentialData) {
 
-                                            consumerFns.push(function(cb){
-                                                KongService.createFromEndpointCb("/" + key + "/" + item.id + "/" + credentialKey,credentialData,req,function(err,created){
+                                            consumerFns.push(function (cb) {
+                                                KongService.createFromEndpointCb("/" + key + "/" + item.id + "/" + credentialKey, credentialData, req, function (err, created) {
 
-                                                    if(err) {
-                                                        sails.log.error("Restore snapshot","Failed to create",key,item.name,err.raw_body);
+                                                    if (err) {
+                                                        sails.log.error("Restore snapshot", "Failed to create", key, item.name, err.raw_body);
                                                         responseData[key].failed.count++
-                                                        if(responseData[key].failed.items.indexOf(item.name) < 0) {
+                                                        if (responseData[key].failed.items.indexOf(item.name) < 0) {
                                                             responseData[key].failed.items.push(item.name)
                                                         }
                                                         return cb()
@@ -201,18 +207,19 @@ module.exports = _.merge(_.cloneDeep(require('../base/Controller')), {
 
                                     })
 
-                                    async.series(consumerFns,function(err,data){
+                                    async.series(consumerFns, function (err, data) {
                                         responseData[key].imported++
-                                        return cb(null,data)
+                                        return cb(null, data)
                                     })
-                                }else{
+                                } else {
 
                                     responseData[key].imported++
-                                    return cb(null,responseData);
+                                    return cb(null, responseData);
                                 }
 
 
-                            });
+                            }
+                            KongService.createFromEndpointCb("/" + (path || key), item, req, serviceResponseHandler);
                         });
                     });
                 //}

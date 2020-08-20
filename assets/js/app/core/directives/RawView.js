@@ -37,11 +37,17 @@
                 '</div>',
                 controller: function($scope,$uibModalInstance,_item){
                   $scope.item = _item
+                  var cur = angular.copy(_item);
+                  
+                  delete cur.created_at;
+                  delete cur.id;
+                  delete cur["$$hashKey"];
+                  
                   $scope.data = 'data:application/json;charset=utf-8,' +
                     JSON.stringify({
-                      "name": "export_" + _item.name,
+                      "name": "export_" + cur.name,
                       "data": {
-                        "apis": [_item]
+                        "apis": [cur]
                       }
                     });
                   $scope.filename = item.name + ".json";

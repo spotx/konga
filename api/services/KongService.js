@@ -65,8 +65,8 @@ var KongService = {
             });
     },
 
-    updateOrCreateFromEndpointCb: function (endpoint, data, req, cb) {
-        unirest.put(req.connection.kong_admin_url + endpoint)
+    updateFromEndpointCb: function (endpoint, data, req, cb) {
+        unirest.patch(req.connection.kong_admin_url + endpoint)
             .header('Content-Type', 'application/json')
             .send(data)
             .end(function (response) {
